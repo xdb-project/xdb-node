@@ -234,6 +234,23 @@ await db.delete('users', 'a1b2c3d4e5f6g7h8');
 
 ---
 
+#### `snapshot(): Promise<XDBResponse<void>>`
+
+Triggers a manual point-in-time state snapshot on the server for secure backups.
+
+**Returns:** Promise that resolves when the snapshot is successfully created**
+
+**Example:**
+
+```typescript
+const result = await db.snapshot();
+if (result.status === 'ok') {
+    console.log('Snapshot created successfully.');
+}
+```
+
+---
+
 #### `close(): Promise<void>`
 
 Gracefully closes the connection to the server.
@@ -556,6 +573,9 @@ telnet localhost 8080
 
 # Count documents
 {"action": "count", "collection": "users"}
+
+# Snapshot documents
+{"action": "snapshot"}
 
 # Close connection
 {"action": "exit"}

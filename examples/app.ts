@@ -1,7 +1,7 @@
 /**
  * @file app.ts
  * @brief Example usage script for the XDB-Node.
- * Demonstrates connection, CRUD operations, and type safety.
+ * Demonstrates connection, CRUD operations, snapshotting, and type safety.
  */
 
 import { XDBClient } from '../src';
@@ -41,11 +41,18 @@ async function main() {
         const count = await db.count('users');
         console.log(`Total Count: ${count.data?.count}`);
 
-        // 4. Cleanup
-        console.log('\n4. Cleanup');
+        // 4. Database Snapshot
+        console.log('\n4. Create Snapshot');
+        const snapshot = await db.snapshot();
+        if (snapshot.status === 'ok') {
+            console.log('Snapshot created successfully on server.');
+        }
+
+        // 5. Cleanup
+        console.log('\n5. Cleanup');
         await db.close();
     } catch (error) {
-        console.error('\n[FATAL] An error occurred execution:', error);
+        console.error('\n[FATAL] An error occurred during execution:', error);
     }
 }
 

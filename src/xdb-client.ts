@@ -233,6 +233,15 @@ export class XDBClient {
     }
 
     /**
+     * @brief Triggers a manual point-in-time state snapshot on the server.
+     * @note This creates a timestamped backup file in the server's storage directory.
+     * @returns Promise<XDBResponse<null>> Success or error message from the server.
+     */
+    public async snapshot(): Promise<XDBResponse<null>> {
+        return this.sendCommand({ action: 'snapshot' });
+    }
+
+    /**
      * @brief Terminates the session and closes the socket.
      */
     public async close(): Promise<void> {

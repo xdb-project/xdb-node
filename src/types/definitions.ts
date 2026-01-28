@@ -7,7 +7,7 @@
 /**
  * @brief Supported actions by the XDB Server.
  */
-export type XDBAction = 'insert' | 'find' | 'delete' | 'count' | 'exit';
+export type XDBAction = 'insert' | 'find' | 'delete' | 'count' | 'snapshot' | 'exit';
 
 /**
  * @brief Configuration options for the client connection.
