@@ -1,0 +1,67 @@
+{
+    "name": "@xdb-project/xdb-node",
+    "version": "1.0.0",
+    "description": "Blazing fast, lightweight Node.js client for XDB Database Engine with full TypeScript support.",
+    "author": "XDB-Project",
+    "license": "MIT",
+    "keywords": [
+        "xdb",
+        "nosql",
+        "database-driver",
+        "tcp-client",
+        "high-performance",
+        "typescript"
+    ],
+    "packageManager": "pnpm@10.27.0",
+    "main": "./dist/index.js",
+    "module": "./dist/index.mjs",
+    "types": "./dist/index.d.ts",
+    "homepage": "https://github.com/xdb-project/xdb-node",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/xdb-project/xdb-node.git"
+    },
+    "bugs": {
+        "url": "https://github.com/xdb-project/xdb-node/issues"
+    },
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.mjs",
+            "require": "./dist/index.js"
+        }
+    },
+    "files": [
+        "dist",
+        "README.md",
+        "LICENSE"
+    ],
+    "scripts": {
+        "dev": "ts-node examples/app.ts",
+        "build": "rm -rf dist && tsc && tsc-alias",
+        "lint": "eslint 'src/**/*.ts'",
+        "format": "prettier --write \"src/**/*.ts\" \"examples/**/*.ts\" \"tests/**/*.ts\"",
+        "format:check": "prettier --check \"src/**/*.ts\" \"examples/**/*.ts\" \"tests/**/*.ts\"",
+        "clean": "rm -rf dist coverage",
+        "test": "jest",
+        "test:watch": "jest --watch",
+        "test:coverage": "jest --coverage",
+        "prepublishOnly": "pnpm run clean && pnpm run format:check && pnpm run test && pnpm run build"
+    },
+    "devDependencies": {
+        "@types/jest": "^29.5.14",
+        "@types/node": "^22.10.0",
+        "jest": "^29.7.0",
+        "prettier": "^3.5.0",
+        "ts-jest": "^29.2.5",
+        "ts-node": "^10.9.2",
+        "tsc-alias": "^1.8.10",
+        "typescript": "^5.7.2"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "publishConfig": {
+        "access": "public"
+    }
+}

@@ -1,0 +1,37 @@
+# Build and Compilation Artifacts
+dist/
+build/
+bin/
+out/
+*.tsbuildinfo
+
+# Dependencies and Lockfiles
+node_modules/
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Test Coverage and Reports
+coverage/
+.nyc_output/
+
+# Database and Persistence
+data/
+*.json
+!package.json
+!tsconfig.json
+
+# Environment and Secrets
+.env
+.env.*
+.npmrc
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Static Assets and Metadata
+*.d.ts
+.DS_Store
+Thumbs.db
