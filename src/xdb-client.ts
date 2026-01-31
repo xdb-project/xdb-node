@@ -85,7 +85,7 @@ export class XDBClient {
      * @brief Establishes a connection to the XDB Server.
      * * Sets up event listeners for data streaming and error handling.
      * * Checks for 'ECONNREFUSED' to provide a helpful hint if the server is down.
-     * * @returns Promise<void> Resolves when connection is successful.
+     * @returns Promise<void> Resolves when connection is successful.
      */
     public connect(): Promise<void> {
         return new Promise((resolve, reject) => {
@@ -104,7 +104,6 @@ export class XDBClient {
             this.socket.on('error', (err: any) => {
                 this.isConnected = false;
 
-                // Check if the connection was refused (Server not running)
                 if (err.code === 'ECONNREFUSED') {
                     this.log(LogLevel.ERROR, `Failed to connect to host ${this.host}:${this.port}`);
                     this.log(
@@ -115,11 +114,9 @@ export class XDBClient {
                     this.log(LogLevel.ERROR, `Socket error occurred: ${err.message}`);
                 }
 
-                // If it's a connection error during init, reject the promise
                 if (this.responseQueue.length === 0) {
                     reject(err);
                 } else {
-                    // Otherwise, reject the current pending command
                     const resolver = this.responseQueue.shift();
                     if (resolver) resolver.reject(err);
                 }
@@ -127,8 +124,6 @@ export class XDBClient {
 
             this.socket.on('close', () => {
                 this.isConnected = false;
-                // Only log explicit closure if needed for debugging
-                // this.log(LogLevel.INFO, 'Connection closed.');
             });
         });
     }
@@ -141,12 +136,7 @@ export class XDBClient {
      */
     private handleStreamData(chunk: string): void {
         this.streamBuffer += chunk;
-
-        // Split by newline (the protocol delimiter)
         const lines = this.streamBuffer.split('\n');
-
-        // The last element is either an empty string (if exact split)
-        // or an incomplete JSON fragment. Keep it in the buffer.
         this.streamBuffer = lines.pop() || '';
 
         for (const line of lines) {
@@ -180,8 +170,6 @@ export class XDBClient {
             }
 
             this.responseQueue.push({ resolve, reject });
-
-            // Append newline as required by the server's protocol
             const message = JSON.stringify(payload) + '\n';
             this.socket.write(message);
         });
@@ -199,6 +187,58 @@ export class XDBClient {
         data: T
     ): Promise<XDBResponse<T & { _id: string }>> {
         return this.sendCommand({ action: 'insert', collection, data });
+    }
+
+    /**
+     * @brief Modifies an existing document based on its unique ID.
+     * Performs a Selective Merge: only specified fields in the data object are updated.
+     * The original _id is preserved and stripped from the payload to prevent corruption.
+     * @param collection Target collection name.
+     * @param id The unique _id of the target document.
+     * @param data Fields to update or add.
+     * @returns {Promise<XDBResponse<T>>} The server's response containing updated fields.
+     */
+    public async update<T extends Record<string, any> = Record<string, any>>(
+        collection: string,
+        id: string,
+        data: Partial<T>
+    ): Promise<XDBResponse<T>> {
+        // Strip _id if present to ensure immutability and prevent server-side pointer errors
+        const { _id, ...cleanData } = data as any;
+        const payloadData = cleanData && typeof cleanData === 'object' ? cleanData : {};
+
+        return this.sendCommand({
+            action: 'update',
+            collection,
+            id,
+            data: payloadData,
+        });
+    }
+
+    /**
+     * @brief Smart operation: Performs a Selective Update if ID exists, or New Insertion if missing.
+     * Aligns with server.c null-checking logic for the 'id' parameter.
+     * @param collection Target collection name.
+     * @param id The unique _id string (supports null for new inserts).
+     * @param data Data to be merged or inserted.
+     * @returns {Promise<XDBResponse<T>>} The server's response indicating success or failure.
+     */
+    public async upsert<T extends Record<string, any> = Record<string, any>>(
+        collection: string,
+        id: string | null,
+        data: T | Partial<T>
+    ): Promise<XDBResponse<T>> {
+        // Ensure ID is explicitly null if undefined to match cJSON_IsString check in C
+        const safeId = id === undefined ? null : id;
+        const { _id, ...cleanData } = data as any;
+        const payloadData = cleanData && typeof cleanData === 'object' ? cleanData : {};
+
+        return this.sendCommand({
+            action: 'upsert',
+            collection,
+            id: safeId,
+            data: payloadData,
+        });
     }
 
     /**
@@ -234,7 +274,6 @@ export class XDBClient {
 
     /**
      * @brief Triggers a manual point-in-time state snapshot on the server.
-     * @note This creates a timestamped backup file in the server's storage directory.
      * @returns Promise<XDBResponse<null>> Success or error message from the server.
      */
     public async snapshot(): Promise<XDBResponse<null>> {
@@ -242,7 +281,7 @@ export class XDBClient {
     }
 
     /**
-     * @brief Terminates the session and closes the socket.
+     * @brief Terminates the session and closes the socket gracefully.
      */
     public async close(): Promise<void> {
         if (this.isConnected) {

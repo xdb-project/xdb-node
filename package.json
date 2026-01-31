@@ -1,6 +1,6 @@
 {
     "name": "@xdb-project/xdb-node",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "description": "Blazing fast, lightweight Node.js client for XDB Database Engine with full TypeScript support.",
     "author": "XDB-Project",
     "license": "MIT",

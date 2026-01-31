@@ -7,7 +7,15 @@
 /**
  * @brief Supported actions by the XDB Server.
  */
-export type XDBAction = 'insert' | 'find' | 'delete' | 'count' | 'snapshot' | 'exit';
+export type XDBAction =
+    | 'insert'
+    | 'find'
+    | 'delete'
+    | 'update'
+    | 'upsert'
+    | 'count'
+    | 'snapshot'
+    | 'exit';
 
 /**
  * @brief Configuration options for the client connection.
@@ -26,7 +34,7 @@ export interface XDBRequest {
     data?: Record<string, any>;
     query?: Record<string, any>;
     limit?: number;
-    id?: string;
+    id?: string | null;
 }
 
 /**

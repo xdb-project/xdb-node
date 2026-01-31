@@ -195,6 +195,49 @@ console.log(`Found ${admins.data?.length} admins`);
 
 ---
 
+#### `update<T>(collection: string, id: string, data: Partial<T>): Promise<XDBResponse<UpdateResult>>`
+
+Updates an existing document in a collection based on its ID.
+
+**Parameters:**
+
+- `collection` (string) - Collection name
+- `id (string)` - The unique _id of the target document
+- `data (Partial)` - Fields to be updated. The original _id is preserved automatically.
+
+**Returns:** Promise indicating if the update was successful. Returns 404 if the ID is not found.
+
+**Example:**
+
+```typescript
+const result = await db.update('users', '2LkxF4pnwzJRxQe1', { age: 18 });
+console.log(result.message); // "Document updated"
+```
+
+---
+
+#### `upsert<T>(collection: string, id: string, data: T): Promise<XDBResponse<UpsertResult>>`
+
+Updates a document if it exists, otherwise inserts it as a new document.
+
+**Parameters:**
+
+- `collection (string)` - Collection name
+- `id (string)` - The unique _id to look for
+- `data (T)` - Data to update or insert
+
+**Returns:** Promise with the result of the operation (either updated or inserted).
+
+**Example:**
+
+```typescript
+// If ID exists, it updates. If not, it creates a new entry with this ID.
+const result = await db.upsert('users', 'new-id-123', { name: 'Bob', score: 90 });
+console.log(result.status); // "ok"
+```
+
+---
+
 #### `count(collection: string, query?: Record<string, any>): Promise<XDBResponse<CountResult>>`
 
 Returns the count of documents matching a query.
